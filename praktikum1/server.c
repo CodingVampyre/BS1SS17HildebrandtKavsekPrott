@@ -1,39 +1,82 @@
-#include <netinet/in.h>
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <string.h>
 
-int main() {
+void handle_content(int sock);
 
-	printf("Hello World\n");
+int main(int argc, char *argv[]) {
+	int sockfd, newsockfd, port_number, client_length;
+	char buffer[512];
+	struct sockaddr_in serv_addr, cli_addr;
+	int n, pid;
 
-	// CREATE A SOCKET
-	int sock;
-	sock = socket(AF_INET, SOCK_STREAM, 0);
-	
-	if (sock<0) {
-		perror("creating stream socket");
-		exit(2);
+	// SOCKET
+	sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	if (sockfd < 0) {
+		perror("ERROR while creating socket");
+		exit (1);
 	}
 
-	// BIND ADRESS TO SOCKET
-	struct sockaddr_in	 	server;
-	server.sin_family = 	 	AF_INET;
-	server.sin_addr.s_addr = 	INADDR_ANY;
-	server.sin_port =	 	htons(4711);	//htons: usigned short host byte order --> Internet network byte order
+	// CREATE SOCKET
+	bzero((char *) &serv_addr, sizeof(serv_addr));
+	port_number  = 5001;
 
-	bind (sock, (struct sockaddr *) &server, sizeof(server));
+	serv_addr.sin_family = AF_INET;
+	serv_addr.sin_addr.s_addr = INADDR_ANY;
+	serv_addr.sin_port = htons (port_number);
 
-	// LISTEN
-	listen(sock, 5); // 5 = Queue
+	// BIND ADRESS
+	if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
+		perror ("ERROR while bining");
+		exit (2);
+	}
 
-	// ACCEPT CONNECTIONS
-	struct sockaddr_in client;
-	int fileDescriptor, client_len;
-	client_len = sizeof(client);
-	
-	fileDescriptor = accept(sock, &client, &client_len); // while sock just accepts new connections, fileDescrptor may read/write with client
-	
-	exit(0);
+	// LISTENING TO CLIENTS
+	listen(sockfd, 5);
+	client_length = sizeof(cli_addr);
+
+	while (1) {
+		newsockfd = accept (sockfd, (struct sockaddr *) &cli_addr, &client_length);
+		if (newsockfd < 0) {
+			perror("ERROR while accepting");
+			exit(3);
+		}
+
+		// NEW PROCESS
+		pid = fork();
+		if (pid < 0) {
+			perror("ERROR while forking");
+			exit(4);
+		}
+
+		if (pid == 0) {
+			close (sockfd);
+			handle_content(newsockfd);
+			exit(0);
+		} else {
+			close(newsockfd);
+		}
+	}
+}
+
+void handle_content(int sock) {
+	int n;
+	char buffer[256];
+	bzero(buffer, 256);
+	n = read(sock, buffer, 255);
+
+	if (n < 0) {
+		perror("ERROR while reading from socket");
+		exit(5);
+	}
+
+	printf("INFORMATION: %s\n", buffer);
+	n = write(sock, "I got some Information!", 18);
+
+	if (n < 0) {
+		perror("ERROR while writing to socket");
+		exit(5);
+	}
 }
