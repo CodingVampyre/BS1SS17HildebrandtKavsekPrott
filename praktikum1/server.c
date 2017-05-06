@@ -8,6 +8,7 @@ int main() {
 
 	printf("Hello World\n");
 
+	// CREATE A SOCKET
 	int sock;
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 	
@@ -16,12 +17,16 @@ int main() {
 		exit(2);
 	}
 
+	// BIND ADRESS TO SOCKET
 	struct sockaddr_in	 	server;
 	server.sin_family = 	 	AF_INET;
 	server.sin_addr.s_addr = 	INADDR_ANY;
 	server.sin_port =	 	htons(4711);	//htons: usigned short host byte order --> Internet network byte order
 
 	bind (sock, (struct sockaddr *) &server, sizeof(server));
+
+	// LISTEN
+	listen(sock, 5); // 5 = Queue
 	
 	exit(0);
 }
