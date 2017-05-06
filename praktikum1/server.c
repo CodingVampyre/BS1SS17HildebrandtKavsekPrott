@@ -27,6 +27,13 @@ int main() {
 
 	// LISTEN
 	listen(sock, 5); // 5 = Queue
+
+	// ACCEPT CONNECTIONS
+	struct sockaddr_in client;
+	int fileDescriptor, client_len;
+	client_len = sizeof(client);
+	
+	fileDescriptor = accept(sock, &client, &client_len); // while sock just accepts new connections, fileDescrptor may read/write with client
 	
 	exit(0);
 }
