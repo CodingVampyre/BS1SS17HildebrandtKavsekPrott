@@ -1,0 +1,19 @@
+server.c:41:62: warning: passing 'int *' to parameter of type 'socklen_t *' (aka 'unsigned int *') converts between pointers to integer types with different sign [-Wpointer-sign]
+                newsockfd = accept (sockfd, (struct sockaddr *) &cli_addr, &client_length);
+                                                                           ^~~~~~~~~~~~~~
+/usr/include/sys/socket.h:681:69: note: passing argument to parameter here
+int     accept(int, struct sockaddr * __restrict, socklen_t * __restrict)
+                                                                        ^
+server.c:48:9: warning: implicit declaration of function 'fork' is invalid in C99 [-Wimplicit-function-declaration]
+                pid = fork();
+                      ^
+server.c:59:4: warning: implicit declaration of function 'close' is invalid in C99 [-Wimplicit-function-declaration]
+                        close (sockfd);
+                        ^
+server.c:71:6: warning: implicit declaration of function 'read' is invalid in C99 [-Wimplicit-function-declaration]
+        n = read(sock, buffer, 255);
+            ^
+server.c:82:6: warning: implicit declaration of function 'write' is invalid in C99 [-Wimplicit-function-declaration]
+        n = write(sock, "I got some Information!\n", 18);
+            ^
+5 warnings generated.

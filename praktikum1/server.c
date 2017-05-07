@@ -4,7 +4,7 @@
 #include <netinet/in.h>
 #include <string.h>
 
-void handle_content(int sock);
+int handle_content(int sock);
 
 int main(int argc, char *argv[]) {
 	int sockfd, newsockfd, port_number, client_length;
@@ -52,16 +52,20 @@ int main(int argc, char *argv[]) {
 		}
 
 		if (pid == 0) {
-			close (sockfd);
-			handle_content(newsockfd);
-			exit(0);
+			int running = 1;
+			while (running != 0) {
+				if (handle_content(newsockfd) == 0) {
+					close (sockfd);
+					exit(0);
+				}
+			}
 		} else {
 			close(newsockfd);
 		}
 	}
 }
 
-void handle_content(int sock) {
+int handle_content(int sock) {
 	int n;
 	char buffer[256];
 	bzero(buffer, 256);
@@ -73,10 +77,18 @@ void handle_content(int sock) {
 	}
 
 	printf("INFORMATION: %s\n", buffer);
-	n = write(sock, "I got some Information!", 18);
+
+	// DEFINE FUNCTIONS
+
+	n = write(sock, "Got Information!\n", 18);
 
 	if (n < 0) {
 		perror("ERROR while writing to socket");
 		exit(5);
+	}
+
+	if (strncmp(buffer, "EXIT", 4) == 0) {
+		printf("EXIT WAS PROVIDED");
+		return 0;
 	}
 }
