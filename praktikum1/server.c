@@ -53,6 +53,7 @@ int main(int argc, char *argv[]) {
 	fd_set fdRead;
 	int socket_list[256] = {-1};
 
+	// WHILE SERVER IS RUNNING
 	while (1) {
 		
 		int max_fd = sockfd;
@@ -60,6 +61,7 @@ int main(int argc, char *argv[]) {
 		FD_ZERO(&fdRead);
 		FD_SET(sockfd, &fdRead);
 		
+		// SEARCH FOR FREE SLOTS AND PUT FD TO FREE SOCKET
 		for (int i=0; i<sizeof(socket_list) / sizeof(socket_list[0]); ++i) {
 			if (socket_list[i] > 0) {
 				if (socket_list[i] > max_fd) {
@@ -69,26 +71,29 @@ int main(int argc, char *argv[]) {
 			}
 		}
 		
+		// EXECUTE SELECTION
 		int res = select(maxfd+1, &fdread, 0, 0, 0); //TODO Test NULL instead of 0
 		if (res < 0) {
 			perror("ERROR while selecting");
 			exit(7);
 		}
 		
+		// IF NO FREE SLOW WAS FOUND, ABORT CURRENT REQUEST
 		if (res == 0) {
 			continue;
 		}
 		
-		// CONTINUE HERE
+		// ITERATE THROUGH socket-list and handle it's content
 		for (int j=0; j<sizeof(socket_list) / sizeof(socket_list[0]; ++j) {
-			if (socket_list[i} > 0 && FD_ISSET(socket_list[i], &fdRead) ) {
+			if (socket_list[i] > 0 && FD_ISSET(socket_list[i], &fdRead) ) {
 				if (handle_content(socket_list[i]) == 0) {
 					close(socket_list[i]);
 					socket_list = -1;
 				}
 			}
 		}
-					
+		
+		// ACCEPT REQUESTS
 		if (FD_ISSET(sockfd, &fdRead)) {
 			newsockfd = accept(sockfd, &client, &client_len);
 			if (newsockfd < 0) {
@@ -122,7 +127,7 @@ int handle_content(int sock) {
 
 	printf("INFORMATION: %s\n", buffer);
 
-	// DEFINE FUNCTIONS
+	// USE FUNCTIONS PUT, DEL, GET HERE
 
 	n = write(sock, "Got Information!\n", 18);
 
