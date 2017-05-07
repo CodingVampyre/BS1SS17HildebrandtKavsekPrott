@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
 		
 		// CONTINUE HERE
 		for (int j=0; j<sizeof(socket_list) / sizeof(socket_list[0]; ++j) {
-			if (socket_list[i} > 0 && FD_ISSET(socket_list[i], fdRead) ) {
+			if (socket_list[i} > 0 && FD_ISSET(socket_list[i], &fdRead) ) {
 				if (handle_content(socket_list[i]) == 0) {
 					close(socket_list[i]);
 					socket_list = -1;
@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
 			}
 		}
 					
-		if (FD_ISSET(sockfd, fdRead)) {
+		if (FD_ISSET(sockfd, &fdRead)) {
 			newsockfd = accept(sockfd, &client, &client_len);
 			if (newsockfd < 0) {
 				perror("ERROR while accepting");
