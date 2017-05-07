@@ -4,6 +4,18 @@
 #include <netinet/in.h>
 #include <string.h>
 
+int min(int value, int _min) { 
+	return value < _min ? _min : value; 
+}
+
+int max(int value, int _max) { 
+	return value > _max ? _max : value; 
+}
+
+int minmax(int value, int _min, int _max) { 
+	return min(max(value, _max), _min); 
+}
+
 int handle_content(int sock);
 
 int main(int argc, char *argv[]) {
@@ -36,8 +48,39 @@ int main(int argc, char *argv[]) {
 	// LISTENING TO CLIENTS
 	listen(sockfd, 5);
 	client_length = sizeof(cli_addr);
+	
+	// USE SELECT
+	fd_set fdRead;
+	int socket_list[256] = {-1};
 
 	while (1) {
+		
+		int max_fd = sockfd;
+		
+		FD_ZERO(&fdRead);
+		FD_SET(sockfd, &fdRead);
+		
+		for (int i=0; i<sizeof(socket_list) / sizeof(socket_list[0]); ++i) {
+			if (socket_list[i] > 0) {
+				if (socket_list[i] > max_fd) {
+					max_fd = socket_list[i];
+				}
+				FD_SET(socket_list[i], &fdRead);
+			}
+		}
+		
+		int res = select(maxfd+1, &fdread, 0, 0, 0); //TODO Test NULL instead of 0
+		if (res < 0) {
+			perror("ERROR while selecting");
+			exit(7);
+		}
+		
+		if (res == 0) {
+			continue;
+		}
+		
+		// CONTINUE HERE
+		
 		newsockfd = accept (sockfd, (struct sockaddr *) &cli_addr, &client_length);
 		if (newsockfd < 0) {
 			perror("ERROR while accepting");
