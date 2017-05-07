@@ -80,30 +80,31 @@ int main(int argc, char *argv[]) {
 		}
 		
 		// CONTINUE HERE
-		
-		newsockfd = accept (sockfd, (struct sockaddr *) &cli_addr, &client_length);
-		if (newsockfd < 0) {
-			perror("ERROR while accepting");
-			exit(3);
-		}
-
-		// NEW PROCESS
-		pid = fork();
-		if (pid < 0) {
-			perror("ERROR while forking");
-			exit(4);
-		}
-
-		if (pid == 0) {
-			int running = 1;
-			while (running != 0) {
-				if (handle_content(newsockfd) == 0) {
-					close (sockfd);
-					exit(0);
+		for (int j=0; j<sizeof(socket_list); ++j) {
+			if (socket_list[i} > 0 && FD_ISSET(socket_list[i], fdRead) ) {
+				if (handle_content(socket_list[i]) == 0) {
+					close(socket_list[i]);
+					socket_list = -1;
 				}
 			}
-		} else {
-			close(newsockfd);
+		}
+					
+		if (FD_ISSET(sockfd, fdRead)) {
+			newsockfd = accept(sockfd, &client, &client_len);
+			if (newsockfd < 0) {
+				perror("ERROR while accepting");
+				exit(3);
+			}
+			for (int y=0; y<sizeof(socket_list); ++y) {
+				if (socket_list[y] == -1) {
+					socket_list[y] = newsockfd;
+					newsock = -1;
+					break;
+				}
+			}
+			if (newsockfd != -1) {
+				close(newsockfd);
+			}
 		}
 	}
 }
