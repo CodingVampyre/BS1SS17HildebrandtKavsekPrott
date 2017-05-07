@@ -4,6 +4,11 @@
 #include <netinet/in.h>
 #include <string.h>
 
+struct keypair {
+	char p_key[33];
+	char p_value[33];
+}
+
 int min(int value, int _min) { 
 	return value < _min ? _min : value; 
 }
