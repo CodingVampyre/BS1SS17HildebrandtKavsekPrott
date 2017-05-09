@@ -34,11 +34,10 @@ getwords (char *line, char *words[], int maxwords) {
 
 int main () {
   char line[] = "Mein Name ist Marvin!";
-  int i;
-  char *words[sizeof(line)/3];
+  char *words[sizeof(line)/2];
 
   int nwords = getwords(line, words, 10);
-  for (i = 0; i < nwords; i++) {
+  for (int i = 0; i < nwords; i++) {
     printf("%s\n", words[i]);
   }
 }

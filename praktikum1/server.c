@@ -3,6 +3,8 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <string.h>
+#include <stddef.h>
+#include <ctype.h>
 
 struct keypair {
 	char p_key[33];
@@ -21,6 +23,7 @@ int minmax(int value, int _min, int _max) {
 	return min(max(value, _max), _min);
 }
 
+getwords (char *line, char *words[], int maxwords);
 int handle_content(int sock);
 int put(char* key, char* value, char* res);
 int get(char* key, char* res);
@@ -136,6 +139,16 @@ int handle_content(int sock) {
 	printf("INFORMATION: %s\n", buffer);
 
 	// USE FUNCTIONS PUT, DEL, GET HERE
+	char *words[sizeof(buffer)/2];
+  int nwords = getwords(buffer, words, 10);
+
+  for (int h = 0; h < nwords; h++) {
+    printf("%s\n", words[h]);
+  }
+
+	if (strcmp(words[0], "TST") == 0) {
+		printf("TEST SUCCESS");
+	}
 
 	n = write(sock, "Got Information!\n", 18);
 
@@ -148,4 +161,36 @@ int handle_content(int sock) {
 		printf("EXIT WAS PROVIDED");
 		return 0;
 	}
+
+	return 1;
+}
+
+getwords (char *line, char *words[], int maxwords) {
+  char *p = line;
+  int nwords = 0;
+
+  while (1) {
+    while (isspace(*p)) {
+      p++;
+    }
+
+    if (*p == "\0") {
+      return nwords;
+    }
+
+    words[nwords++] = p;
+
+    while (!isspace (*p) && *p != '\0') {
+      p++;
+    }
+    if (*p == '\0') {
+      return nwords;
+    }
+
+    *p++ = '\0';
+
+    if (nwords >= maxwords) {
+      return nwords;
+    }
+  }
 }
