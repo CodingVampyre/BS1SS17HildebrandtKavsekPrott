@@ -9,16 +9,16 @@ struct keypair {
 	char p_value[33];
 };
 
-int min(int value, int _min) { 
-	return value < _min ? _min : value; 
+int min(int value, int _min) {
+	return value < _min ? _min : value;
 }
 
-int max(int value, int _max) { 
-	return value > _max ? _max : value; 
+int max(int value, int _max) {
+	return value > _max ? _max : value;
 }
 
-int minmax(int value, int _min, int _max) { 
-	return min(max(value, _max), _min); 
+int minmax(int value, int _min, int _max) {
+	return min(max(value, _max), _min);
 }
 
 int handle_content(int sock);
@@ -53,19 +53,19 @@ int main(int argc, char *argv[]) {
 	// LISTENING TO CLIENTS
 	listen(sockfd, 5);
 	client_length = sizeof(cli_addr);
-	
+
 	// USE SELECT
 	fd_set fdRead;
 	int socket_list[256] = {-1};
 
 	// WHILE SERVER IS RUNNING
 	while (1) {
-		
+
 		int max_fd = sockfd;
-		
+
 		FD_ZERO(&fdRead);
 		FD_SET(sockfd, &fdRead);
-		
+
 		// SEARCH FOR FREE SLOTS AND PUT FD TO FREE SOCKET
 		for (int i=0; i<sizeof(socket_list) / sizeof(socket_list[0]); ++i) {
 			if (socket_list[i] > 0) {
@@ -75,29 +75,29 @@ int main(int argc, char *argv[]) {
 				FD_SET(socket_list[i], &fdRead);
 			}
 		}
-		
+
 		// EXECUTE SELECTION
-		int res = select(maxfd+1, &fdread, 0, 0, 0); //TODO Test NULL instead of 0
+		int res = select(max_fd+1, &fdRead, 0, 0, 0); //TODO Test NULL instead of 0
 		if (res < 0) {
 			perror("ERROR while selecting");
 			exit(7);
 		}
-		
+
 		// IF NO FREE SLOW WAS FOUND, ABORT CURRENT REQUEST
 		if (res == 0) {
 			continue;
 		}
-		
+
 		// ITERATE THROUGH socket-list and handle it's content
-		for (int j=0; j<sizeof(socket_list) / sizeof(socket_list[0]; ++j) {
-			if (socket_list[i] > 0 && FD_ISSET(socket_list[i], &fdRead) ) {
-				if (handle_content(socket_list[i]) == 0) {
-					close(socket_list[i]);
-					socket_list = -1;
+		for (int j=0; j<sizeof(socket_list) / sizeof(socket_list[0]); ++j) {
+			if (socket_list[j] > 0 && FD_ISSET(socket_list[j], &fdRead) ) {
+				if (handle_content(socket_list[j]) == 0) {
+					close(socket_list[j]);
+					socket_list[j] = -1;
 				}
 			}
 		}
-		
+
 		// ACCEPT REQUESTS
 		if (FD_ISSET(sockfd, &fdRead)) {
 			newsockfd = accept(sockfd, &client, &client_len);
@@ -105,10 +105,10 @@ int main(int argc, char *argv[]) {
 				perror("ERROR while accepting");
 				exit(3);
 			}
-			for (int y=0; y<sizeof(socket_list) / sizeof(socket_list[0]; ++y) {
+			for (int y=0; y<sizeof(socket_list) / sizeof(socket_list[0]); ++y) {
 				if (socket_list[y] == -1) {
 					socket_list[y] = newsockfd;
-					newsock = -1;
+					newsockfd = -1;
 					break;
 				}
 			}
