@@ -148,7 +148,13 @@ int handle_content(int sock) {
   }
 
 	if (strcmp(words[0], "TST") == 0) {
-		printf("TEST SUCCESS");
+		printf("TEST SUCCESS\n");
+	} else if (strcmp(words[0], "PUT") == 0) {
+		put(words[1], words[2], res); // TODO DEFINE RES
+	} else if (strcmp(words[0], "GET") == 0) {
+		get(words[1], res); // TODO DEFINE RES
+	} else  if(strcmp(words[0], "DEL") == 0) {
+		del(words[1], res);
 	}
 
 	n = write(sock, "Got Information!\n", 18);
@@ -159,7 +165,7 @@ int handle_content(int sock) {
 	}
 
 	if (strncmp(buffer, "EXIT", 4) == 0) {
-		printf("EXIT WAS PROVIDED");
+		printf("EXIT WAS PROVIDED\n");
 		return 0;
 	}
 
