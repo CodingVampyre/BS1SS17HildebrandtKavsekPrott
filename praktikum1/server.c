@@ -34,6 +34,7 @@ int main(int argc, char *argv[]) {
 	char buffer[512];
 	struct sockaddr_in serv_addr, cli_addr;
 	int n, pid;
+	struct keypair keys[1024];
 
 	// SOCKET
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
