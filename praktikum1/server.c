@@ -154,7 +154,7 @@ int handle_content(int sock) {
 	} else if (strcmp(words[0], "GET") == 0) {
 		get(words[1], res); // TODO DEFINE RES
 	} else  if(strcmp(words[0], "DEL") == 0) {
-		del(words[1], res);
+		del(words[1], res); // TODO DEFINE RES
 	}
 
 	n = write(sock, "Got Information!\n", 18);
