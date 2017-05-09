@@ -22,6 +22,9 @@ int minmax(int value, int _min, int _max) {
 }
 
 int handle_content(int sock);
+int put(char* key, char* value, char* res);
+int get(char* key, char* res);
+int del(char* key, char* res);
 
 int main(int argc, char *argv[]) {
 	int sockfd, newsockfd, port_number, client_length;
