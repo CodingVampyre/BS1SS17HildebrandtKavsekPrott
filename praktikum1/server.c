@@ -141,6 +141,7 @@ int handle_content(int sock) {
 
 	// USE FUNCTIONS PUT, DEL, GET HERE
 	char *words[sizeof(buffer)/2];
+	char res[256];
   int nwords = getwords(buffer, words, 10);
 
   for (int h = 0; h < nwords; h++) {
@@ -150,11 +151,11 @@ int handle_content(int sock) {
 	if (strcmp(words[0], "TST") == 0) {
 		printf("TEST SUCCESS\n");
 	} else if (strcmp(words[0], "PUT") == 0) {
-		put(words[1], words[2], res); // TODO DEFINE RES
+		put(words[1], words[2], res);
 	} else if (strcmp(words[0], "GET") == 0) {
-		get(words[1], res); // TODO DEFINE RES
+		get(words[1], res);
 	} else  if(strcmp(words[0], "DEL") == 0) {
-		del(words[1], res); // TODO DEFINE RES
+		del(words[1], res);
 	}
 
 	n = write(sock, "Got Information!\n", 18);
@@ -200,4 +201,16 @@ getwords (char *line, char *words[], int maxwords) {
       return nwords;
     }
   }
+}
+
+int put(char* key, char* value, char* res) {
+
+}
+
+int get(char* key, char* res) {
+
+}
+
+int del(char* key, char* res) {
+
 }
