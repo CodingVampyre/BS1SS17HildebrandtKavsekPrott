@@ -63,6 +63,7 @@ int main(int argc, char *argv[]) {
 	// USE SELECT
 	fd_set fdRead;
 	int socket_list[256] = {-1};
+	memset(socket_list, -1, sizeof(socket_list));
 
 	// WHILE SERVER IS RUNNING
 	while (1) {
