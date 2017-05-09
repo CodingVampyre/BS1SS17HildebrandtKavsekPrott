@@ -103,7 +103,7 @@ int main(int argc, char *argv[]) {
 
 		// ACCEPT REQUESTS
 		if (FD_ISSET(sockfd, &fdRead)) {
-			newsockfd = accept(sockfd, &client, &client_len);
+			newsockfd = accept(sockfd, &cli_addr, &client_length);
 			if (newsockfd < 0) {
 				perror("ERROR while accepting");
 				exit(3);
