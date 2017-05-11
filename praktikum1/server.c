@@ -8,7 +8,7 @@
 
 struct keypair {
 	char p_key[33];
-	char p_value[33];
+	char p_value[1025];
 };
 
 int min(int value, int _min) {
@@ -35,6 +35,8 @@ int main(int argc, char *argv[]) {
 	struct sockaddr_in serv_addr, cli_addr;
 	int n, pid;
 	struct keypair keys[1024];
+
+	memset(keys, -1, sizeof(keys));
 
 	// SOCKET
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -205,13 +207,32 @@ getwords (char *line, char *words[], int maxwords) {
 }
 
 int put(char* key, char* value, char* res) {
-
+	for(int i=0; i<sizeof(keys); i++) {
+		if (keys[i] == -1) {
+			keys[i].p_key = key;
+			keys[i].p_value = value;
+			return 0;
+		}
+	}
+	return 1;
 }
 
 int get(char* key, char* res) {
-
+	for (int i=0; i<sizeof(keys); i++) {
+		if (strcmp(keys[i].p_name, key) == 0) {
+			res = keys[i].p_value;
+			return 0;
+		}
+	}
+	return 1;
 }
 
 int del(char* key, char* res) {
-
+	for (int i=0; i<sizeof(keys); i++) {
+		if (strcmp(keys[i].p_name, key) == 0) {
+			keys[i] = -1;
+			return 0;
+		}
+	}
+	return 1;
 }
