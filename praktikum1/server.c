@@ -218,7 +218,7 @@ int put(char* key, char* value, char* res) {
 }
 
 int get(char* key, char* res) {
-	for (int i=0; i<sizeof(keys); i++) {
+	for (int i=0; i<sizeof(keys) / sizeof(keys[0]); i++) {
 		if (strncmp(keys[i].p_name, key, sizeof(keys[i].p_name)) == 0) {
 			strcpy(res, keys[i].p_value);
 			return 0;
@@ -228,8 +228,8 @@ int get(char* key, char* res) {
 }
 
 int del(char* key, char* res) {
-	for (int i=0; i<sizeof(keys); i++) {
-		if (strcmp(keys[i].p_name, key) == 0) {
+	for (int i=0; i<sizeof(keys) / sizeof(keys[0]); i++) {
+		if (strncmp(keys[i].p_name, key, sizeof(keys[i].p_name)) == 0) {
 			memset(&keys[i], 0, sizeof(keys[i])
 			return 0;
 		}
