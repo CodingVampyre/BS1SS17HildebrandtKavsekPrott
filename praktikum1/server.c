@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
 	int n, pid;
 	struct keypair keys[1024];
 
-	memset(keys, -1, sizeof(keys));
+	memset(keys, 0, sizeof(keys));
 
 	// SOCKET
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -207,10 +207,10 @@ getwords (char *line, char *words[], int maxwords) {
 }
 
 int put(char* key, char* value, char* res) {
-	for(int i=0; i<sizeof(keys); i++) {
-		if (keys[i] == -1) {
-			keys[i].p_key = key;
-			keys[i].p_value = value;
+	for(int i=0; i<sizeof(keys) / sizeof(keys[0]); i++) {
+		if (strlen(keys[i].p_name) == 0) {
+			strncpy(keys[i].p_key, key, sizeof(keys[i].p_key));
+			strncpy(keys[i].p_value, value, sizeof(keys[i].p_value));
 			return 0;
 		}
 	}
@@ -219,8 +219,8 @@ int put(char* key, char* value, char* res) {
 
 int get(char* key, char* res) {
 	for (int i=0; i<sizeof(keys); i++) {
-		if (strcmp(keys[i].p_name, key) == 0) {
-			res = keys[i].p_value;
+		if (strncmp(keys[i].p_name, key, sizeof(keys[i].p_name)) == 0) {
+			strcpy(res, keys[i].p_value);
 			return 0;
 		}
 	}
@@ -230,7 +230,7 @@ int get(char* key, char* res) {
 int del(char* key, char* res) {
 	for (int i=0; i<sizeof(keys); i++) {
 		if (strcmp(keys[i].p_name, key) == 0) {
-			keys[i] = -1;
+			memset(&keys[i], 0, sizeof(keys[i])
 			return 0;
 		}
 	}
