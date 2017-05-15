@@ -11,6 +11,8 @@ struct keypair {
 	char p_value[1025];
 };
 
+struct keypair keys[1024];
+
 int min(int value, int _min) {
 	return value < _min ? _min : value;
 }
@@ -34,7 +36,6 @@ int main(int argc, char *argv[]) {
 	char buffer[512];
 	struct sockaddr_in serv_addr, cli_addr;
 	int n, pid;
-	struct keypair keys[1024];
 
 	memset(keys, 0, sizeof(keys));
 
