@@ -162,7 +162,7 @@ int handle_content(int sock) {
 		del(words[1], res);
 	}
 
-	n = write(sock, "Got Information!\n", 18);
+	n = write(sock, ("Output: %s\n", res), 18);
 
 	if (n < 0) {
 		perror("ERROR while writing to socket");
@@ -231,7 +231,7 @@ int get(char* key, char* res) {
 int del(char* key, char* res) {
 	for (int i=0; i<sizeof(keys) / sizeof(keys[0]); i++) {
 		if (strncmp(keys[i].p_key, key, sizeof(keys[i].p_key)) == 0) {
-			memset(&keys[i], 0, sizeof(keys[i]);
+			memset(&keys[i], 0, sizeof(keys[i]));
 			return 0;
 		}
 	}
