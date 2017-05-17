@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
 
 	// BIND ADRESS
 	if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
-		perror ("ERROR while bining");
+		perror ("ERROR while binding");
 		exit (2);
 	}
 
@@ -74,8 +74,8 @@ int main(int argc, char *argv[]) {
 
 		int max_fd = sockfd;
 
-		FD_ZERO(&fdRead);
-		FD_SET(sockfd, &fdRead);
+		FD_ZERO(&fdRead); // CLEARS A SET
+		FD_SET(sockfd, &fdRead); // ADD GIVEN FILE DESCRIPTOR FROM A SET
 
 		// SEARCH FOR FREE SLOTS AND PUT FD TO FREE SOCKET
 		for (int i=0; i<sizeof(socket_list) / sizeof(socket_list[0]); ++i) {
@@ -94,7 +94,7 @@ int main(int argc, char *argv[]) {
 			exit(7);
 		}
 
-		// IF NO FREE SLOW WAS FOUND, ABORT CURRENT REQUEST
+		// IF NO FREE SLOT WAS FOUND, ABORT CURRENT REQUEST
 		if (res == 0) {
 			continue;
 		}
