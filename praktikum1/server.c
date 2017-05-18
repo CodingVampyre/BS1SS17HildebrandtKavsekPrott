@@ -162,7 +162,10 @@ int handle_content(int sock) {
 		del(words[1], res);
 	}
 
-	n = write(sock, ("Output: %s\n", res), 18);
+	//n = write(sock, ("Output: %s\n", res), 18);
+	char szOutput[256];
+	sprintf(szOutput, "Output: %s\n", res);
+	n = write(sock, szOutput, strlen(szOutput));
 
 	if (n < 0) {
 		perror("ERROR while writing to socket");
