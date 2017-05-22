@@ -8,6 +8,12 @@
 #include <string.h>
 #include <ctype.h>
 
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <sys/wait.h>
+
 int doprocessing (int sock);
 
 getwords(char *line, char *words[], int maxwords);
@@ -20,6 +26,8 @@ struct KeyPair {
   char value[1024];
 };
 
+int id;
+
 struct KeyPair keys[1024];
 
 int main(int argc, char *argv[] ) {
@@ -28,6 +36,12 @@ int main(int argc, char *argv[] ) {
   char buffer[256];
   struct sockaddr_in serv_addr, cli_addr;
   int n, pid;
+  int ptr;
+  int *shar_mem;
+
+  id = shmget(IPC_PRIVATE, sizeof(keys), IPC_CREAT|0777);
+  shar_mem = (int *)shmat(id, 0, 0);
+  *shar_mem = 0;
 
   memset(keys, 0, sizeof(keys));
 
@@ -41,7 +55,7 @@ int main(int argc, char *argv[] ) {
 
   /* initialisiere socket */
   bzero((char *) &serv_addr, sizeof(serv_addr));
-  portno = 6969;
+  portno = 6669;
 
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_addr.s_addr = INADDR_ANY;
@@ -68,20 +82,22 @@ int main(int argc, char *argv[] ) {
       /* child prozess erzeugen */
       pid = fork();
 
+      //result = shmctl(id, cmd, buffer);
+
       if (pid < 0) {
         perror("ERROR on fork");
         exit(1);
       }
 
       if (pid == 0) {
-        //close(sockfd);
-        //doprocessing(newsockfd);
-        //exit(0);
+
 
         while (doprocessing(newsockfd) == 0) {
 
         }
         close(sockfd);
+        shmdt(shar_mem);
+        shmctl(id, IPC_RMID, 0);
         exit(0);
       }
 
@@ -133,7 +149,7 @@ int doprocessing (int sock) {
   }
 
   char szOutput[256];
-  sprintf(szOutput, "Output: %s\n", res);
+  sprintf(szOutput, "Output: %s\n Id: %i\n", res, id);
   n = write(sock, szOutput, strlen(szOutput));
 
   return 0;
