@@ -148,23 +148,28 @@ int handle_content(int sock) {
 	char res[256];
 	int nwords = getwords(buffer, words, 10);
 
-	for (int h = 0; h < nwords; h++) {
-		printf("%s\n", words[h]);
-	}
-
 	if (strcmp(words[0], "TST") == 0) {
 		printf("TEST SUCCESS\n");
 	} else if (strcmp(words[0], "PUT") == 0) {
-		put(words[1], words[2], res);
+		if(put(words[1], words[2], res) != 0) {
+			strcpy(res, "NIL");
+		}
 	} else if (strcmp(words[0], "GET") == 0) {
-		get(words[1], res);
+		if(get(words[1], res) != 0) {
+			strcpy(res, "NIL");
+		}
 	} else  if(strcmp(words[0], "DEL") == 0) {
-		del(words[1], res);
+		if (del(words[1], res) != 0) {
+			strcpy(res, "NIL");
+		}
 	}
 
 	char szOutput[256];
 	sprintf(szOutput, "Output: %s\n", res);
 	n = write(sock, szOutput, strlen(szOutput));
+
+	memset(res, 0, sizeof(res));
+	memset(szOutput, 0, sizeof(szOutput));
 
 	if (n < 0) {
 		perror("ERROR while writing to socket");
@@ -234,6 +239,7 @@ int get(char* key, char* res) {
 int del(char* key, char* res) {
 	for (int i=0; i<sizeof(keys) / sizeof(keys[0]); i++) {
 		if (strncmp(keys[i].p_key, key, sizeof(keys[i].p_key)) == 0) {
+			strncpy(res, keys[i].p_value, sizeof(keys[i].p_value));
 			memset(&keys[i], 0, sizeof(keys[i]));
 			return 0;
 		}
