@@ -214,6 +214,7 @@ int put(char* key, char* value, char* res) {
 		if (strlen(keys[i].p_key) == 0) {
 			strncpy(keys[i].p_key, key, sizeof(keys[i].p_key));
 			strncpy(keys[i].p_value, value, sizeof(keys[i].p_value));
+			strncpy(res, value, sizeof(res));
 			return 0;
 		}
 	}
