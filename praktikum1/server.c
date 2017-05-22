@@ -146,11 +146,11 @@ int handle_content(int sock) {
 	// USE FUNCTIONS PUT, DEL, GET HERE
 	char *words[sizeof(buffer)/2];
 	char res[256];
-  int nwords = getwords(buffer, words, 10);
+	int nwords = getwords(buffer, words, 10);
 
-  for (int h = 0; h < nwords; h++) {
-    printf("%s\n", words[h]);
-  }
+	for (int h = 0; h < nwords; h++) {
+		printf("%s\n", words[h]);
+	}
 
 	if (strcmp(words[0], "TST") == 0) {
 		printf("TEST SUCCESS\n");
