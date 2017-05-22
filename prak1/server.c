@@ -8,7 +8,7 @@
 #include <string.h>
 #include <ctype.h>
 
-void doprocessing (int sock);
+int doprocessing (int sock);
 
 int main(int argc, char *argv[] ) {
 
@@ -27,7 +27,7 @@ int main(int argc, char *argv[] ) {
 
   /* initialisiere socket */
   bzero((char *) &serv_addr, sizeof(serv_addr));
-  portno = 1337;
+  portno = 1945;
 
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_addr.s_addr = INADDR_ANY;
@@ -60,8 +60,14 @@ int main(int argc, char *argv[] ) {
       }
 
       if (pid == 0) {
+        //close(sockfd);
+        //doprocessing(newsockfd);
+        //exit(0);
+
+        while (doprocessing(newsockfd) == 0) {
+          printf("Weiter!");
+        }
         close(sockfd);
-        doprocessing(newsockfd);
         exit(0);
       }
 
@@ -71,23 +77,37 @@ int main(int argc, char *argv[] ) {
     }
   }
 
-void doprocessing (int sock) {
+int doprocessing (int sock) {
   int n;
   char buffer[256];
   bzero(buffer, 256);
   n = read(sock,buffer,255);
+  char res[256];
 
   if (n < 0) {
     perror("ERROR reading from socket");
     exit(1);
-    }
+  }
+
+  strcpy(res, buffer);
+
+  printf(buffer);
 
   printf("Here is the message: %s\n", buffer);
-  n = write(sock, "I got your message",18);
+  //n = write(sock, "I got your message\n",18);
+  char szOutput[256];
+  sprintf(szOutput, "Output: %s\n", res);
+  n = write(sock, szOutput, strlen(szOutput));
 
   if (n < 0) {
     perror("ERROR writing to socket");
     exit(1);
   }
+
+  if(strncmp(buffer, "EXIT", 4) == 0) {
+    return 1;
+  }
+
+  return 0;
 
 }
