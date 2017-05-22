@@ -15,12 +15,21 @@ int put(char* key, char* value, char* res);
 int get(char* key, char* res);
 int del(char* key, char* res);
 
+struct KeyPair {
+  char key[33];
+  char value[1024];
+};
+
+struct KeyPair keys[1024];
+
 int main(int argc, char *argv[] ) {
 
   int sockfd, newsockfd, portno, clilen;
   char buffer[256];
   struct sockaddr_in serv_addr, cli_addr;
   int n, pid;
+
+  memset(keys, 0, sizeof(keys));
 
   /* socket funktion aufrufen */
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -162,13 +171,35 @@ getwords (char *line, char *words[], int maxwords) {
 }
 
 int put(char* key, char* value, char* res) {
-
+  for(int i = 0; i < sizeof(keys)/sizeof(keys[0]); i++) {
+    if (strlen(keys[i].key) == 0) {
+      strncpy(keys[i].key, key, sizeof(keys[i].key));
+      strncpy(keys[i].value, value, sizeof(keys[i].value));
+      return 0;
+    }
+  }
+  return 1;
 }
 
 int get(char* key, char* res) {
-
+  for(int i = 0; i < sizeof(keys)/sizeof(keys[0]); i++) {
+    if (strncmp(keys[i].key, key, sizeof(keys[i].key)) == 0) {
+      strcpy(res, keys[i].value);
+      return 0;
+    }
+  }
+  return 1;
 }
 
 int del(char* key, char* res) {
+  for(int i = 0; i < sizeof(keys)/sizeof(keys[0]); i++) {
+    if (strncmp(keys[i].key, key, sizeof(keys[i].key)) == 0) {
+      strncpy(res, keys[i].value, sizeof(keys[i].value));
+      memset(&keys[i].key, 0, sizeof(keys[i].key));
+      memset(&keys[i].value, 0, sizeof(keys[i].key));
+      return 0;
+    }
 
+  }
+  return 1;
 }
