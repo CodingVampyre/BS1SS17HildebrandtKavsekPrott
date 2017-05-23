@@ -184,7 +184,7 @@ getwords (char *line, char *words[], int maxwords) {
 }
 
 int put(char* key, char* value, char* res) {
-  for(int i = 0; i < sizeof(keys)/sizeof(keys[0]); i++) {
+  for(int i = 0; i < NUM_KEY_PAIRS; i++) {
     if (strlen(keys[i].key) == 0) {
       strncpy(keys[i].key, key, sizeof(keys[i].key));
       strncpy(keys[i].value, value, sizeof(keys[i].value));
@@ -196,7 +196,7 @@ int put(char* key, char* value, char* res) {
 }
 
 int get(char* key, char* res) {
-  for(int i = 0; i < sizeof(keys)/sizeof(keys[0]); i++) {
+  for(int i = 0; i < NUM_KEY_PAIRS; i++) {
     if (strncmp(keys[i].key, key, sizeof(keys[i].key)) == 0) {
       strcpy(res, keys[i].value);
       return 0;
@@ -208,10 +208,7 @@ int get(char* key, char* res) {
 
 int del(char* key, char* res) {
 
-  int blegh = sizeof(keys)/sizeof(keys[0]);
-  printf("%i", blegh);
-
-  for(int i = 0; i < (sizeof(keys)/sizeof(keys[0])); i++) {
+  for(int i = 0; i < NUM_KEY_PAIRS; i++) {
     if (strncmp(keys[i].key, key, sizeof(keys[i].key)) == 0) {
       strncpy(res, keys[i].value, sizeof(keys[i].value));
       memset(&keys[i], 0, sizeof(keys[i]));
