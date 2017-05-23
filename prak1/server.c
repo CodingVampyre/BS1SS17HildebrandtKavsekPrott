@@ -41,7 +41,9 @@ int main(int argc, char *argv[] ) {
 
   id = shmget(IPC_PRIVATE, sizeof(keys), IPC_CREAT|0777);
   shar_mem = (struct KeyPair *)shmat(id, 0, 0);
-  *shar_mem = 0;
+
+  // TODO memset testweise umschreiben auf &shar_mem statt keys
+  // TODO Dann statt keys nur noch mit shar_mem arbeiten???
 
   memset(keys, 0, sizeof(keys));
 
