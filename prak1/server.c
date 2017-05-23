@@ -207,7 +207,11 @@ int get(char* key, char* res) {
 }
 
 int del(char* key, char* res) {
-  for(int i = 0; i < sizeof(keys)/sizeof(keys[0]); i++) {
+
+  int blegh = sizeof(keys)/sizeof(keys[0]);
+  printf("%i", blegh);
+
+  for(int i = 0; i < (sizeof(keys)/sizeof(keys[0]))-1; i++) {
     if (strncmp(keys[i].key, key, sizeof(keys[i].key)) == 0) {
       strncpy(res, keys[i].value, sizeof(keys[i].value));
       memset(&keys[i], 0, sizeof(keys[i]));
