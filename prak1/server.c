@@ -33,6 +33,8 @@ struct KeyPair* keys;
 
 int main(int argc, char *argv[] ) {
 
+  printf("Hallo?");
+
   int sockfd, newsockfd, portno, clilen;
   char buffer[256];
   struct sockaddr_in serv_addr, cli_addr;
@@ -40,7 +42,6 @@ int main(int argc, char *argv[] ) {
 
   mem_id = shmget(IPC_PRIVATE, sizeof(struct KeyPair) * NUM_KEY_PAIRS, IPC_CREAT|0777);
   keys = (struct KeyPair*)shmat(mem_id, 0, 0);
-
   memset(keys, 0, sizeof(struct KeyPair) * NUM_KEY_PAIRS);
 
   /* socket funktion aufrufen */
