@@ -27,8 +27,9 @@ struct KeyPair {
 };
 
 int id;
-
-//struct KeyPair keys[1024];
+const int NUM_KEY_PAIRS = 1024;
+int mem_id;
+struct KeyPair* keys;
 
 int main(int argc, char *argv[] ) {
 
@@ -39,9 +40,8 @@ int main(int argc, char *argv[] ) {
   int ptr;
   int *shar_mem;
 
-  const int NUM_KEY_PAIRS = 1024;
-  int mem_id = shmget(IPC_PRIVATE, sizeof(struct KeyPair) * NUM_KEY_PAIRS, IPC_CREATE | 0777);
-  struct KeyPair* keys = (struct KeyPair*)shmat(mem_id, 0, 0);
+  keys = (struct KeyPair*)shmat(mem_id, 0, 0);
+  mem_id = shmget(IPC_PRIVATE, sizeof(struct KeyPair) * NUM_KEY_PAIRS, IPC_CREAT|0777);
 
   memset(keys, 0, sizeof(struct KeyPair) * NUM_KEY_PAIRS);
 
