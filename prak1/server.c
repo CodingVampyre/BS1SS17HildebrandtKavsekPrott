@@ -130,9 +130,6 @@ int doprocessing (int sock) {
     perror("ERROR writing to socket");
     exit(1);
   }
-  for (int h = 0; h < nwords; h++) {
-    printf("%s\n", words[h]);
-  }
 
   if(strncmp(buffer, "EXIT", 4) == 0) {
     return 1;
@@ -194,6 +191,7 @@ int put(char* key, char* value, char* res) {
       return 0;
     }
   }
+  strcpy(res, "NIL");
   return 1;
 }
 
@@ -204,6 +202,7 @@ int get(char* key, char* res) {
       return 0;
     }
   }
+  strcpy(res, "NIL");
   return 1;
 }
 
@@ -214,7 +213,7 @@ int del(char* key, char* res) {
       memset(&keys[i], 0, sizeof(keys[i]));
       return 0;
     }
-
   }
+  strcpy(res, "NIL");
   return 1;
 }
