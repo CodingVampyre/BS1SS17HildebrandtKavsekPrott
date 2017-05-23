@@ -40,7 +40,7 @@ int main(int argc, char *argv[] ) {
   int *shar_mem;
 
   id = shmget(IPC_PRIVATE, sizeof(keys), IPC_CREAT|0777);
-  shar_mem = (int *)shmat(id, 0, 0);
+  shar_mem = (struct KeyPair *)shmat(id, 0, 0);
   *shar_mem = 0;
 
   memset(keys, 0, sizeof(keys));
