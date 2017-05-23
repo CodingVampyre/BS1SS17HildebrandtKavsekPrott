@@ -28,7 +28,7 @@ struct KeyPair {
 
 int id;
 
-struct KeyPair keys[1024];
+//struct KeyPair keys[1024];
 
 int main(int argc, char *argv[] ) {
 
@@ -39,13 +39,11 @@ int main(int argc, char *argv[] ) {
   int ptr;
   int *shar_mem;
 
-  id = shmget(IPC_PRIVATE, sizeof(keys), IPC_CREAT|0777);
-  shar_mem = (struct KeyPair *)shmat(id, 0, 0);
+  const int NUM_KEY_PAIRS = 1024;
+  int mem_id = shmget(IPC_PRIVATE, sizeof(struct KeyPair) * NUM_KEY_PAIRS, IPC_CREATE | 0777);
+  struct KeyPair* keys = (struct KeyPair*)shmat(mem_id, 0, 0);
 
-  // TODO memset testweise umschreiben auf &shar_mem statt keys
-  // TODO Dann statt keys nur noch mit shar_mem arbeiten???
-
-  memset(keys, 0, sizeof(keys));
+  memset(keys, 0, sizeof(struct KeyPair) * NUM_KEY_PAIRS);
 
   /* socket funktion aufrufen */
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
