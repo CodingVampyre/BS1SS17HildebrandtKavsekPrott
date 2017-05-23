@@ -33,8 +33,6 @@ struct KeyPair* keys;
 
 int main(int argc, char *argv[] ) {
 
-  printf("Hallo?");
-
   int sockfd, newsockfd, portno, clilen;
   char buffer[256];
   struct sockaddr_in serv_addr, cli_addr;
@@ -42,7 +40,7 @@ int main(int argc, char *argv[] ) {
 
   mem_id = shmget(IPC_PRIVATE, sizeof(struct KeyPair) * NUM_KEY_PAIRS, IPC_CREAT|0777);
   keys = (struct KeyPair*)shmat(mem_id, 0, 0);
-  memset(keys, 0, sizeof(struct KeyPair) * NUM_KEY_PAIRS);
+  memset(keys, 0, sizeof(struct KeyPair) * NUM_KEY_PAIRS); // TODO Solve Segmentation fault 11 occuring here!
 
   /* socket funktion aufrufen */
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -76,35 +74,30 @@ int main(int argc, char *argv[] ) {
     if (newsockfd < 0) {
       perror("ERROR on accept");
       exit(1);
-      }
+    }
 
-      /* child prozess erzeugen */
-      pid = fork();
+    /* child prozess erzeugen */
+    pid = fork();
 
       //result = shmctl(id, cmd, buffer);
 
-      if (pid < 0) {
-        perror("ERROR on fork");
-        exit(1);
-      }
+    if (pid < 0) {
+      perror("ERROR on fork");
+      exit(1);
+    }
 
-      if (pid == 0) {
+    if (pid == 0) {
 
-
-        while (doprocessing(newsockfd) == 0) {
-
-        }
-        close(sockfd);
-        shmdt(keys);
-        shmctl(id, IPC_RMID, 0);
-        exit(0);
-      }
-
-      else {
+      while (doprocessing(newsockfd) == 0) {}
+      close(sockfd);
+      shmdt(keys);
+      shmctl(id, IPC_RMID, 0);
+      exit(0);
+    } else {
         close(newsockfd);
-      }
     }
   }
+}
 
 int doprocessing (int sock) {
   int n;
