@@ -33,16 +33,10 @@ struct KeyPair* keys;
 
 int main(int argc, char *argv[] ) {
 
-  printf("Up until here, it works! - 1");
-
   int sockfd, newsockfd, portno, clilen;
   char buffer[256];
   struct sockaddr_in serv_addr, cli_addr;
-  int n, pid;
-  int ptr;
-  int *shar_mem;
-
-  printf("Up until here, it works! - 2");
+  int n, pid, ptr;
 
   mem_id = shmget(IPC_PRIVATE, sizeof(struct KeyPair) * NUM_KEY_PAIRS, IPC_CREAT|0777);
   keys = (struct KeyPair*)shmat(mem_id, 0, 0);
@@ -100,7 +94,7 @@ int main(int argc, char *argv[] ) {
 
         }
         close(sockfd);
-        shmdt(shar_mem);
+        shmdt(keys);
         shmctl(id, IPC_RMID, 0);
         exit(0);
       }
