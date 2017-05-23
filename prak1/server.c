@@ -40,6 +40,8 @@ int main(int argc, char *argv[] ) {
 
   mem_id = shmget(IPC_PRIVATE, sizeof(struct KeyPair) * NUM_KEY_PAIRS, IPC_CREAT|0777);
   keys = (struct KeyPair*)shmat(mem_id, 0, 0);
+
+  printf("Keys, %i", keys);
   memset(keys, 0, sizeof(struct KeyPair) * NUM_KEY_PAIRS); // TODO Solve Segmentation fault 11 occuring here!
 
   /* socket funktion aufrufen */
