@@ -14,13 +14,14 @@
 #include <sys/shm.h>
 #include <sys/wait.h>
 
+//initialize functions provided in the code to prevent function not found errors
 int doprocessing (int sock);
-
 getwords(char *line, char *words[], int maxwords);
 int put(char* key, char* value, char* res);
 int get(char* key, char* res);
 int del(char* key, char* res);
 
+//Define the KeyValue struct
 struct KeyPair {
   char key[33];
   char value[1024];
@@ -38,13 +39,17 @@ int main(int argc, char *argv[] ) {
   struct sockaddr_in serv_addr, cli_addr;
   int n, pid, ptr;
 
+  //method for creating a shared memory segment
   mem_id = shmget(IPC_PRIVATE, sizeof(struct KeyPair) * NUM_KEY_PAIRS, IPC_CREAT|0777);
+
+  //method for loading the content of the shared memory segment to keys
   keys = (struct KeyPair*)shmat(mem_id, 0, 0);
 
-  printf("Keys: %p\n", keys);
-  memset(keys, 0, sizeof(struct KeyPair) * NUM_KEY_PAIRS); // TODO Solve Segmentation fault 11 occuring here!
+  // DEBUG: printf("Keys: %p\n", keys);
 
-  /* socket funktion aufrufen */
+  //fill the shared memory values with zero
+  memset(keys, 0, sizeof(struct KeyPair) * NUM_KEY_PAIRS);
+  //create a socket
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
   if (sockfd < 0) {
@@ -52,24 +57,25 @@ int main(int argc, char *argv[] ) {
     exit(1);
   }
 
-  /* initialisiere socket */
+  //fill socket with zero
   bzero((char *) &serv_addr, sizeof(serv_addr));
   portno = 6669;
 
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_addr.s_addr = INADDR_ANY;
-  serv_addr.sin_port = htons(portno);
+  serv_addr.sin_port = htons(portno); //convert the port no. to network format
 
-  /* die addresse an den Host binden */
+  //bind the address to socket
   if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
     perror("ERROR on binding");
     exit(1);
   }
 
-  /* start listening */
+  // start listening on socket and waiting for request
   listen(sockfd,5);
   clilen = sizeof(cli_addr);
 
+  //INFINITE LOOP
   while (1) {
     newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
 
@@ -78,19 +84,21 @@ int main(int argc, char *argv[] ) {
       exit(1);
     }
 
-    /* child prozess erzeugen */
+    //create child process if needed
     pid = fork();
 
-      //result = shmctl(id, cmd, buffer);
+    // DEBUG: result = shmctl(id, cmd, buffer);
 
     if (pid < 0) {
       perror("ERROR on fork");
       exit(1);
     }
 
+    //check if a new process was generated
     if (pid == 0) {
-
+      //the process is kept alive until the client closes the connection
       while (doprocessing(newsockfd) == 0) {}
+      //closes the socket and basic clean up of the shared memory
       close(sockfd);
       shmdt(keys);
       shmctl(id, IPC_RMID, 0);
@@ -101,6 +109,7 @@ int main(int argc, char *argv[] ) {
   }
 }
 
+//handle user input
 int doprocessing (int sock) {
   int n;
   char buffer[256];
@@ -109,10 +118,10 @@ int doprocessing (int sock) {
   char *words[sizeof(buffer)/2];
   char res[256];
 
+  //divide buffer into array of words
   int nwords = getwords(buffer, words, 10);
 
-
-
+  //errorhandling
   if (n < 0) {
     perror("ERROR reading from socket");
     exit(1);
@@ -125,10 +134,12 @@ int doprocessing (int sock) {
     exit(1);
   }
 
+  //cancels the request by "EXIT"
   if(strncmp(buffer, "EXIT", 4) == 0) {
     return 1;
   }
 
+  //handle user input
   if (strncmp(words[0], "TST", 3) == 0){
     printf("ERROR SUCCESS \n");
   } else if(strncmp(words[0], "PUT", 3) == 0) {
@@ -139,14 +150,15 @@ int doprocessing (int sock) {
     del(words[1], res);
   }
 
+  //Output handling
   char szOutput[256];
   sprintf(szOutput, "Output: %s\n Id: %i\n", res, id);
-  n = write(sock, szOutput, strlen(szOutput));
+  n = write(sock, szOutput, strlen(szOutput)); //write answer to client
 
   return 0;
 
 }
-
+//takes the string and returns an array of  words
 getwords (char *line, char *words[], int maxwords) {
   char *p = line;
   int nwords = 0;
@@ -177,6 +189,7 @@ getwords (char *line, char *words[], int maxwords) {
   }
 }
 
+//checks if key is existing, if not then store in value into struct
 int put(char* key, char* value, char* res) {
   for(int i = 0; i < NUM_KEY_PAIRS; i++) {
     if (strlen(keys[i].key) == 0) {
@@ -189,6 +202,7 @@ int put(char* key, char* value, char* res) {
   return 1;
 }
 
+//checks if key exists, if yes returns the value of the requested key
 int get(char* key, char* res) {
   for(int i = 0; i < NUM_KEY_PAIRS; i++) {
     if (strncmp(keys[i].key, key, sizeof(keys[i].key)) == 0) {
@@ -199,7 +213,7 @@ int get(char* key, char* res) {
   strcpy(res, "NIL");
   return 1;
 }
-
+//checks if key exists, if yes deletes the values
 int del(char* key, char* res) {
 
   for(int i = 0; i < NUM_KEY_PAIRS; i++) {
