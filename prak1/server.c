@@ -191,6 +191,9 @@ getwords (char *line, char *words[], int maxwords) {
 
 //checks if key is existing, if not then store in value into struct
 int put(char* key, char* value, char* res) {
+  
+  // BEGIN: CRITICAL
+  
   for(int i = 0; i < NUM_KEY_PAIRS; i++) {
     if (strlen(keys[i].key) == 0) {
       strncpy(keys[i].key, key, sizeof(keys[i].key));
@@ -198,24 +201,35 @@ int put(char* key, char* value, char* res) {
       return 0;
     }
   }
+  
+  // END: CRITICAL
+  
   strcpy(res, "NIL");
   return 1;
 }
 
 //checks if key exists, if yes returns the value of the requested key
 int get(char* key, char* res) {
+  
+  // BEGIN: CRITICAL
+  
   for(int i = 0; i < NUM_KEY_PAIRS; i++) {
     if (strncmp(keys[i].key, key, sizeof(keys[i].key)) == 0) {
       strcpy(res, keys[i].value);
       return 0;
     }
   }
+  
+  // END: CRITICAL
+  
   strcpy(res, "NIL");
   return 1;
 }
 //checks if key exists, if yes deletes the values
 int del(char* key, char* res) {
 
+  // BEGIN: CRITICAL
+  
   for(int i = 0; i < NUM_KEY_PAIRS; i++) {
     if (strncmp(keys[i].key, key, sizeof(keys[i].key)) == 0) {
       strncpy(res, keys[i].value, sizeof(keys[i].value));
@@ -223,6 +237,9 @@ int del(char* key, char* res) {
       return 0;
     }
   }
+  
+  // END: CRITICAL
+  
   strcpy(res, "NIL");
   return 1;
 }
