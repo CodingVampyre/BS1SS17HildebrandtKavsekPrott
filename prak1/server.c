@@ -36,6 +36,7 @@ struct KeyPair* keys;
 
 int sem_id;
 unsigned short marker[2];
+struct sembuf enter_read, leave_read, enter_write, leave_write;
 
 int main(int argc, char *argv[] ) {
 
@@ -52,16 +53,16 @@ int main(int argc, char *argv[] ) {
 
 	//fill the shared memory values with zero
 	memset(keys, 0, sizeof(struct KeyPair) * NUM_KEY_PAIRS);
-  
+
 	// add 2 semaphors
 	sem_id = semget(IPC_PRIVATE, 2, IPC_CREAT|0644);
 	if (sem_id == -1) { perror("Could not create semaphors"); return -1; }
-  
+
 	// set all semaphores to 1
 	marker[0] = 1;
 	marker[1] = 1;
 	semctl(sem_id, 2, SETALL, marker);
-  
+
 	//create a socket
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sockfd < 0) { perror("ERROR opening socket"); exit(1); }
@@ -103,23 +104,22 @@ int main(int argc, char *argv[] ) {
 
 		//check if a new process was generated
 		if (pid == 0) {
-		
+
 			// sem-ops
-			struct sembuf enter, leave;
-			enter.sem_num = leave.sem_num = 0; //0tes sem
-			enter.sem_flg = leave.sem_flg = SEM_UNDO;
-			enter.sem_op = -1; // block
-			leave.sem_op = 1; // unblock
-		
+			enter_read.sem_num = leave_read.sem_num = 0; //0tes sem
+			enter_read.sem_flg = leave_read.sem_flg = SEM_UNDO;
+			enter_read.sem_op = -1; // block
+			leave_read.sem_op = 1; // unblock
+
 			//the process is kept alive until the client closes the connection
 			while (doprocessing(newsockfd) == 0) {}
-	    
+
 			//closes the socket and basic clean up of the shared memory
 			close(sockfd);
 			shmdt(keys);
 			shmctl(id, IPC_RMID, 0);
 			exit(0);
-	    
+
 		} else {
 			close(newsockfd);
 		}
@@ -194,7 +194,7 @@ getwords (char *line, char *words[], int maxwords) {
 		while (!isspace (*p) && *p != '\0') {
 			p++;
 		}
-		
+
 		if (*p == '\0') {
 			return nwords;
 		}
@@ -209,9 +209,9 @@ getwords (char *line, char *words[], int maxwords) {
 
 //checks if key is existing, if not then store in value into struct
 int put(char* key, char* value, char* res) {
-  
+
 	// BEGIN: CRITICAL
-  
+
 	for(int i = 0; i < NUM_KEY_PAIRS; i++) {
 		if (strlen(keys[i].key) == 0) {
 			strncpy(keys[i].key, key, sizeof(keys[i].key));
@@ -219,27 +219,27 @@ int put(char* key, char* value, char* res) {
 			return 0;
 		}
 	}
-  
+
 	// END: CRITICAL
-  
+
 	strcpy(res, "NIL");
 	return 1;
 }
 
 //checks if key exists, if yes returns the value of the requested key
 int get(char* key, char* res) {
-  
+
 	// BEGIN: CRITICAL
-  
+
 	for(int i = 0; i < NUM_KEY_PAIRS; i++) {
 		if (strncmp(keys[i].key, key, sizeof(keys[i].key)) == 0) {
 			strcpy(res, keys[i].value);
 			return 0;
 		}
 	}
-  
+
 	// END: CRITICAL
-  
+
 	strcpy(res, "NIL");
 	return 1;
 }
@@ -248,7 +248,7 @@ int get(char* key, char* res) {
 int del(char* key, char* res) {
 
 	// BEGIN: CRITICAL
-  
+
 	for(int i = 0; i < NUM_KEY_PAIRS; i++) {
 		if (strncmp(keys[i].key, key, sizeof(keys[i].key)) == 0) {
 			strncpy(res, keys[i].value, sizeof(keys[i].value));
@@ -256,9 +256,9 @@ int del(char* key, char* res) {
 			return 0;
 		}
 	}
-  
+
 	// END: CRITICAL
-  
+
 	strcpy(res, "NIL");
 	return 1;
 }
