@@ -5,6 +5,8 @@
 #include <netdb.h>
 #include <netinet/in.h>
 
+#include <sys/sem.h>
+
 #include <string.h>
 #include <ctype.h>
 
@@ -32,6 +34,9 @@ const int NUM_KEY_PAIRS = 1024;
 int mem_id;
 struct KeyPair* keys;
 
+int sem_id;
+unsigned short marker[2];
+
 int main(int argc, char *argv[] ) {
 
   int sockfd, newsockfd, portno, clilen;
@@ -45,17 +50,20 @@ int main(int argc, char *argv[] ) {
   //method for loading the content of the shared memory segment to keys
   keys = (struct KeyPair*)shmat(mem_id, 0, 0);
 
-  // DEBUG: printf("Keys: %p\n", keys);
-
   //fill the shared memory values with zero
   memset(keys, 0, sizeof(struct KeyPair) * NUM_KEY_PAIRS);
+  
+  // add 2 semaphors
+  sem_id = semget(IPC_PRIVATE, 2, IPC_CREAT|0644);
+  if (sem_id == -1) { perror("Could not create semaphors"); return -1; }
+  
+  // set all semaphores to 1
+  marker = {1, 1};
+  semctl(sem_id, 2, SETALL, marker);
+  
   //create a socket
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
-
-  if (sockfd < 0) {
-    perror("ERROR opening socket");
-    exit(1);
-  }
+  if (sockfd < 0) { perror("ERROR opening socket"); exit(1); }
 
   //fill socket with zero
   bzero((char *) &serv_addr, sizeof(serv_addr));
