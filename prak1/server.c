@@ -118,6 +118,7 @@ int main(int argc, char *argv[] ) {
 			close(sockfd);
 			shmdt(keys);
 			shmctl(id, IPC_RMID, 0);
+			semctl(sem_id, 0, IPC_RMID);
 			exit(0);
 
 		} else {
