@@ -111,6 +111,11 @@ int main(int argc, char *argv[] ) {
 			enter_read.sem_op = -1; // block
 			leave_read.sem_op = 1; // unblock
 
+			enter_write.sem_num = leave_write.sem_num = 1;
+			enter_write.sem_flg = leave_write.sem_flg = SEM_UNDO;
+			enter_write.sem_op = -1;
+			leave_write.sem_op = 1;
+
 			//the process is kept alive until the client closes the connection
 			while (doprocessing(newsockfd) == 0) {}
 
