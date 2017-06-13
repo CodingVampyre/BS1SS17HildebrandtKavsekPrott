@@ -203,6 +203,8 @@ int put(char* key, char* value, char* res) {
 	// BEGIN: CRITICAL
 	semop(sem_id, &enter_write, 1);
 
+	sleep(20);
+
 	for(int i = 0; i < NUM_KEY_PAIRS; i++) {
 		if (strlen(keys[i].key) == 0) {
 			strncpy(keys[i].key, key, sizeof(keys[i].key));
@@ -227,6 +229,8 @@ int get(char* key, char* res) {
 	semop(sem_id, &enter_read, 1);
 	semop(sem_id, &enter_write, 1);
 
+	sleep(20);
+
 	for(int i = 0; i < NUM_KEY_PAIRS; i++) {
 		if (strncmp(keys[i].key, key, sizeof(keys[i].key)) == 0) {
 			strcpy(res, keys[i].value);
@@ -250,6 +254,8 @@ int del(char* key, char* res) {
 
 	// BEGIN: CRITICAL
 	semop(sem_id, &enter_write, 1);
+
+	sleep(20);
 
 	for(int i = 0; i < NUM_KEY_PAIRS; i++) {
 		if (strncmp(keys[i].key, key, sizeof(keys[i].key)) == 0) {
