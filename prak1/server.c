@@ -104,6 +104,14 @@ int main(int argc, char *argv[] ) {
 
     //check if a new process was generated
     if (pid == 0) {
+		
+	  // sem-ops
+	  struct sembuf enter, leave;
+	  enter.sem_num = leave.sem_num = 0; //0tes sem
+	  enter.sem_flg = leave.sem_flg = SEM_UNDO;
+	  enter.sem_op = -1; // block
+	  leave.sem_op = 1; // unblock
+		
       //the process is kept alive until the client closes the connection
       while (doprocessing(newsockfd) == 0) {}
       //closes the socket and basic clean up of the shared memory
