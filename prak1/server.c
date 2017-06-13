@@ -217,6 +217,7 @@ getwords (char *line, char *words[], int maxwords) {
 int put(char* key, char* value, char* res) {
 
 	// BEGIN: CRITICAL
+	semop(sem_id, &enter_write, 1);
 
 	for(int i = 0; i < NUM_KEY_PAIRS; i++) {
 		if (strlen(keys[i].key) == 0) {
@@ -227,6 +228,7 @@ int put(char* key, char* value, char* res) {
 	}
 
 	// END: CRITICAL
+	semop(sem_id, &leave_write, 1);
 
 	strcpy(res, "NIL");
 	return 1;
@@ -236,6 +238,8 @@ int put(char* key, char* value, char* res) {
 int get(char* key, char* res) {
 
 	// BEGIN: CRITICAL
+	semop(sem_id, &enter_read, 1);
+	semop(sem_id, &enter_write, 1);
 
 	for(int i = 0; i < NUM_KEY_PAIRS; i++) {
 		if (strncmp(keys[i].key, key, sizeof(keys[i].key)) == 0) {
@@ -245,6 +249,8 @@ int get(char* key, char* res) {
 	}
 
 	// END: CRITICAL
+	semop(sem_id, &leave_write, 1);
+	semop(sem_id, &leave_read, 1);
 
 	strcpy(res, "NIL");
 	return 1;
@@ -254,6 +260,7 @@ int get(char* key, char* res) {
 int del(char* key, char* res) {
 
 	// BEGIN: CRITICAL
+	semop(sem_id, &enter_write, 1);
 
 	for(int i = 0; i < NUM_KEY_PAIRS; i++) {
 		if (strncmp(keys[i].key, key, sizeof(keys[i].key)) == 0) {
@@ -264,6 +271,7 @@ int del(char* key, char* res) {
 	}
 
 	// END: CRITICAL
+	semop(sem_id, &leave_write, 1);
 
 	strcpy(res, "NIL");
 	return 1;
