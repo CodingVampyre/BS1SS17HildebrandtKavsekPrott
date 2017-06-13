@@ -25,8 +25,8 @@ int del(char* key, char* res);
 
 //Define the KeyValue struct
 struct KeyPair {
-  char key[33];
-  char value[1024];
+	char key[33];
+	char value[1024];
 };
 
 int id;
@@ -39,85 +39,86 @@ unsigned short marker[2];
 
 int main(int argc, char *argv[] ) {
 
-  int sockfd, newsockfd, portno, clilen;
-  char buffer[256];
-  struct sockaddr_in serv_addr, cli_addr;
-  int n, pid, ptr;
+	int sockfd, newsockfd, portno, clilen;
+	char buffer[256];
+	struct sockaddr_in serv_addr, cli_addr;
+	int n, pid, ptr;
 
-  //method for creating a shared memory segment
-  mem_id = shmget(IPC_PRIVATE, sizeof(struct KeyPair) * NUM_KEY_PAIRS, IPC_CREAT|0777);
+	//method for creating a shared memory segment
+	mem_id = shmget(IPC_PRIVATE, sizeof(struct KeyPair) * NUM_KEY_PAIRS, IPC_CREAT|0777);
 
-  //method for loading the content of the shared memory segment to keys
-  keys = (struct KeyPair*)shmat(mem_id, 0, 0);
+	//method for loading the content of the shared memory segment to keys
+	keys = (struct KeyPair*)shmat(mem_id, 0, 0);
 
-  //fill the shared memory values with zero
-  memset(keys, 0, sizeof(struct KeyPair) * NUM_KEY_PAIRS);
+	//fill the shared memory values with zero
+	memset(keys, 0, sizeof(struct KeyPair) * NUM_KEY_PAIRS);
   
-  // add 2 semaphors
-  sem_id = semget(IPC_PRIVATE, 2, IPC_CREAT|0644);
-  if (sem_id == -1) { perror("Could not create semaphors"); return -1; }
+	// add 2 semaphors
+	sem_id = semget(IPC_PRIVATE, 2, IPC_CREAT|0644);
+	if (sem_id == -1) { perror("Could not create semaphors"); return -1; }
   
-  // set all semaphores to 1
-  marker = {1, 1};
-  semctl(sem_id, 2, SETALL, marker);
+	// set all semaphores to 1
+	marker[0] = 1;
+	marker[1] = 1;
+	semctl(sem_id, 2, SETALL, marker);
   
-  //create a socket
-  sockfd = socket(AF_INET, SOCK_STREAM, 0);
-  if (sockfd < 0) { perror("ERROR opening socket"); exit(1); }
+	//create a socket
+	sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	if (sockfd < 0) { perror("ERROR opening socket"); exit(1); }
 
-  //fill socket with zero
-  bzero((char *) &serv_addr, sizeof(serv_addr));
-  portno = 6669;
+	//fill socket with zero
+	bzero((char *) &serv_addr, sizeof(serv_addr));
+	portno = 6669;
 
-  serv_addr.sin_family = AF_INET;
-  serv_addr.sin_addr.s_addr = INADDR_ANY;
-  serv_addr.sin_port = htons(portno); //convert the port no. to network format
+	serv_addr.sin_family = AF_INET;
+	serv_addr.sin_addr.s_addr = INADDR_ANY;
+	serv_addr.sin_port = htons(portno); //convert the port no. to network format
 
-  //bind the address to socket
-  if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
-    perror("ERROR on binding");
-    exit(1);
-  }
-
-  // start listening on socket and waiting for request
-  listen(sockfd,5);
-  clilen = sizeof(cli_addr);
-
-  //INFINITE LOOP
-  while (1) {
-	newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
-
-	if (newsockfd < 0) {
-		perror("ERROR on accept");
+	//bind the address to socket
+	if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
+		perror("ERROR on binding");
 		exit(1);
 	}
 
-	//create child process if needed
-	pid = fork();
+	// start listening on socket and waiting for request
+	listen(sockfd,5);
+	clilen = sizeof(cli_addr);
 
-	if (pid < 0) {
-		perror("ERROR on fork");
-		exit(1);
-	}
+	//INFINITE LOOP
+	while (1) {
+		newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
 
-	//check if a new process was generated
-	if (pid == 0) {
+		if (newsockfd < 0) {
+			perror("ERROR on accept");
+			exit(1);
+		}
+
+		//create child process if needed
+		pid = fork();
+
+		if (pid < 0) {
+			perror("ERROR on fork");
+			exit(1);
+		}
+
+		//check if a new process was generated
+		if (pid == 0) {
 		
-		// sem-ops
-		struct sembuf enter, leave;
-		enter.sem_num = leave.sem_num = 0; //0tes sem
-		enter.sem_flg = leave.sem_flg = SEM_UNDO;
-		enter.sem_op = -1; // block
-		leave.sem_op = 1; // unblock
+			// sem-ops
+			struct sembuf enter, leave;
+			enter.sem_num = leave.sem_num = 0; //0tes sem
+			enter.sem_flg = leave.sem_flg = SEM_UNDO;
+			enter.sem_op = -1; // block
+			leave.sem_op = 1; // unblock
 		
-		//the process is kept alive until the client closes the connection
-		while (doprocessing(newsockfd) == 0) {}
+			//the process is kept alive until the client closes the connection
+			while (doprocessing(newsockfd) == 0) {}
 	    
-		//closes the socket and basic clean up of the shared memory
-		close(sockfd);
-		shmdt(keys);
-		shmctl(id, IPC_RMID, 0);
-		exit(0);
+			//closes the socket and basic clean up of the shared memory
+			close(sockfd);
+			shmdt(keys);
+			shmctl(id, IPC_RMID, 0);
+			exit(0);
 	    
 		} else {
 			close(newsockfd);
