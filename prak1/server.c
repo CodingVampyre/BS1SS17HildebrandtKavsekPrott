@@ -207,6 +207,8 @@ int put(char* key, char* value, char* res) {
 		if (strlen(keys[i].key) == 0) {
 			strncpy(keys[i].key, key, sizeof(keys[i].key));
 			strncpy(keys[i].value, value, sizeof(keys[i].value));
+
+			semop(sem_id, &leave_write, 1);
 			return 0;
 		}
 	}
@@ -228,6 +230,9 @@ int get(char* key, char* res) {
 	for(int i = 0; i < NUM_KEY_PAIRS; i++) {
 		if (strncmp(keys[i].key, key, sizeof(keys[i].key)) == 0) {
 			strcpy(res, keys[i].value);
+
+			semop(sem_id, &leave_write, 1);
+			semop(sem_id, &leave_read, 1);
 			return 0;
 		}
 	}
@@ -250,6 +255,8 @@ int del(char* key, char* res) {
 		if (strncmp(keys[i].key, key, sizeof(keys[i].key)) == 0) {
 			strncpy(res, keys[i].value, sizeof(keys[i].value));
 			memset(&keys[i], 0, sizeof(keys[i]));
+
+			semop(sem_id, &leave_write, 1);
 			return 0;
 		}
 	}
