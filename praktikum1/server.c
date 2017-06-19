@@ -181,7 +181,7 @@ int handle_content(int sock) {
 		if(get(words[1], res) != 0) {
 			strcpy(res, "NIL");
 		}
-	} else  if(strcmp(words[0], "DEL") == 0) {
+	} else if(strcmp(words[0], "DEL") == 0) {
 		if (del(words[1], res) != 0) {
 			strcpy(res, "NIL");
 		}
