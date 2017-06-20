@@ -64,7 +64,8 @@ int main(int argc, char *argv[] ) {
 	// set all semaphores to 1
 	marker[0] = 1;
 	marker[1] = 1;
-	semctl(sem_id, 2, SETALL, marker);
+	semctl(sem_id, 0, SETVAL, marker[0]);
+	semctl(sem_id, 1, SETVAL, marker[1]);
 
 	//create a socket
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -232,15 +233,15 @@ int get(char* key, char* res) {
 	semop(sem_id, &enter_read, 1);
 	rc += 1;
 	if (rc == 1) semop(sem_id, &enter_write, 1);
-
 	semop(sem_id, &leave_read, 1);
 
-	sleep(20);
 
 	for(int i = 0; i < NUM_KEY_PAIRS; i++) {
 		if (strncmp(keys[i].key, key, sizeof(keys[i].key)) == 0) {
 			strcpy(res, keys[i].value);
 
+			printf("Hallo, ich bins!\n");
+			sleep(20);
 			semop(sem_id, &enter_read, 1);
 
 			rc -= 1;
