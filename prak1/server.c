@@ -244,8 +244,8 @@ int get(char* key, char* res) {
 			semop(sem_id, &enter_read, 1);
 
 			rc -= 1;
-			if (rc == 0) semop(sem_id, &leave_read, 1);
-			semop(sem_id, &leave_write, 1);
+			if (rc == 0) semop(sem_id, &leave_write, 1);
+			semop(sem_id, &leave_read, 1);
 			return 0;
 		}
 	}
