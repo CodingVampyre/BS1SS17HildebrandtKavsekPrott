@@ -241,6 +241,7 @@ int get(char* key, char* res) {
 			strcpy(res, keys[i].value);
 
 			printf("Hallo, ich bins!\n");
+			fflush(0);
 			sleep(20);
 			semop(sem_id, &enter_read, 1);
 
