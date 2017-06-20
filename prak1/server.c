@@ -37,6 +37,7 @@ struct KeyPair* keys;
 int sem_id;
 unsigned short marker[2];
 struct sembuf enter_read, leave_read, enter_write, leave_write;
+int rc;
 
 int main(int argc, char *argv[] ) {
 
@@ -44,6 +45,8 @@ int main(int argc, char *argv[] ) {
 	char buffer[256];
 	struct sockaddr_in serv_addr, cli_addr;
 	int n, pid, ptr;
+
+	rc = 0;
 
 	//method for creating a shared memory segment
 	mem_id = shmget(IPC_PRIVATE, sizeof(struct KeyPair) * NUM_KEY_PAIRS, IPC_CREAT|0777);
@@ -227,7 +230,10 @@ int get(char* key, char* res) {
 
 	// BEGIN: CRITICAL
 	semop(sem_id, &enter_read, 1);
-	semop(sem_id, &enter_write, 1);
+	rc += 1;
+	if (rc == 1) semop(sem_id, &enter_write, 1);
+
+	semop(sem_id, &leave_write, 1);
 
 	sleep(20);
 
@@ -236,13 +242,18 @@ int get(char* key, char* res) {
 			strcpy(res, keys[i].value);
 
 			semop(sem_id, &leave_write, 1);
+
+			rc -= 1;
+			if (rc == 0) semop(sem_id, &leave_write, 1);
 			semop(sem_id, &leave_read, 1);
 			return 0;
 		}
 	}
 
+	rc -= 1;
+	if (rc == 0) semop(sem_id, &leave_write, 1);
+
 	// END: CRITICAL
-	semop(sem_id, &leave_write, 1);
 	semop(sem_id, &leave_read, 1);
 
 	strcpy(res, "NIL");
