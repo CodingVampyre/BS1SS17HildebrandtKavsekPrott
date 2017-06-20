@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
 
 		/*
 		* Der eigentliche Aufruf von select(). DHier übergeben wir nfds als max_fd, unseren pool fdRead und ein paar
-		* unwichtige Flags. Nun weiss unser Server, an welchen Slots er etwas bearbeiten muss. Yay.
+		* unwichtige Flags. Nun weiß unser Server, an welchen Slots er etwas bearbeiten muss. Yay.
 		*/
 		int res = select(max_fd+1, &fdRead, 0, 0, 0); //TODO Test NULL instead of 0
 		if (res < 0) {
@@ -115,7 +115,7 @@ int main(int argc, char *argv[]) {
 		}
 
 		/*
-		* Wir gehen abermals durch unser Array an Sockets und schauen, ob sich an der Stelle sowohl Daten 
+		* Wir iterieren abermals durch unser Array an Sockets und schauen, ob sich an der Stelle sowohl Daten 
 		* als auch eine gesetzte Anfrage befinden (122). Wenn dem so ist, können wir die Daten bearbeiten (handle_content)
 		* Das passiert für ALLE Anfragen, die in dieser Runde gestellt wurden.
 		*/
