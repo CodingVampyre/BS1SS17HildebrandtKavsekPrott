@@ -233,7 +233,7 @@ int get(char* key, char* res) {
 	rc += 1;
 	if (rc == 1) semop(sem_id, &enter_write, 1);
 
-	semop(sem_id, &leave_write, 1);
+	semop(sem_id, &leave_read, 1);
 
 	sleep(20);
 
@@ -241,11 +241,11 @@ int get(char* key, char* res) {
 		if (strncmp(keys[i].key, key, sizeof(keys[i].key)) == 0) {
 			strcpy(res, keys[i].value);
 
-			semop(sem_id, &leave_write, 1);
+			semop(sem_id, &enter_read, 1);
 
 			rc -= 1;
-			if (rc == 0) semop(sem_id, &leave_write, 1);
-			semop(sem_id, &leave_read, 1);
+			if (rc == 0) semop(sem_id, &leave_read, 1);
+			semop(sem_id, &leave_write, 1);
 			return 0;
 		}
 	}
